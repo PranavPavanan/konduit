@@ -1,0 +1,54 @@
+# Root .gitignore for the project
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Distribution / packaging
+*.egg-info/
+.eggs/
+*.whl
+build/
+dist/
+
+# Logs
+*.log
+rag_service.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Vector index files and large binary artifacts
+vector_index.*
+*.faiss
+*.pkl
+
+# Models / checkpoints / large datasets
+*.ckpt
+*.pt
+/models/
+/data/
+
+# Secrets and environment files
+.env
+*.pem
+*.key
+
+# Ignore python compiled extensions
+*.so
+
+# Keep .gitignore files in subfolders (explicitly allow)
+!venv/.gitignore
