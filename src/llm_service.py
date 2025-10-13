@@ -24,31 +24,6 @@ class LLMProvider(ABC):
         """Check if the LLM provider is available"""
         pass
 
-class MockLLM(LLMProvider):
-    """Mock LLM for testing purposes"""
-    
-    def is_available(self) -> bool:
-        return True
-    
-    def generate_answer(self, question: str, context_chunks: List[SearchResult]) -> Dict[str, Any]:
-        """Generate a mock answer"""
-        if not context_chunks:
-            return {
-                "answer": "I cannot answer this question based on the provided information.",
-                "confidence": 0.0,
-                "refusal_reason": "No context provided"
-            }
-        
-        # Simple mock response
-        context_text = " ".join([chunk.text[:100] for chunk in context_chunks[:2]])
-        answer = f"Based on the provided information: {context_text[:200]}..."
-        
-        return {
-            "answer": answer,
-            "confidence": 0.8,
-            "generation_time": 0.1
-        }
-
 class LLMService:
     """Main LLM service that manages different providers"""
     
@@ -60,23 +35,28 @@ class LLMService:
     
     def _initialize_providers(self):
         """Initialize available LLM providers"""
-        # Try to load Ollama with Qwen2.5 4B first
+        # Try to load Ollama with Qwen3 4B
         try:
             ollama_llm = OllamaProvider(model_name=self.model_name, base_url=self.ollama_url)
             if ollama_llm.is_available():
                 self.providers.append(ollama_llm)
                 logger.info(f"Loaded Ollama provider with {self.model_name}")
             else:
-                logger.warning(f"Failed to load Ollama provider with {self.model_name}")
+                logger.error(f"Failed to load Ollama provider with {self.model_name}")
+                raise Exception(f"Ollama model '{self.model_name}' is not available")
         except Exception as e:
-            logger.warning(f"Failed to initialize Ollama provider: {e}")
-        
-        # Add mock provider as fallback
-        self.providers.append(MockLLM())
-        logger.info("Added mock LLM provider as fallback")
+            logger.error(f"Failed to initialize Ollama provider: {e}")
+            raise Exception(f"Ollama service is not running or model '{self.model_name}' is not installed. Please run: ollama pull {self.model_name}")
     
     def generate_answer(self, question: str, context_chunks: List[SearchResult]) -> Dict[str, Any]:
         """Generate answer using the best available provider"""
+        if not self.providers:
+            return {
+                "answer": f"LLM service is not available. Please ensure Ollama is running and the '{self.model_name}' model is installed. Run: ollama pull {self.model_name}",
+                "confidence": 0.0,
+                "refusal_reason": "No LLM providers available"
+            }
+        
         for provider in self.providers:
             if provider.is_available():
                 try:
@@ -87,7 +67,7 @@ class LLMService:
         
         # If all providers fail, return error
         return {
-            "answer": "I apologize, but I'm currently unable to process your question due to technical difficulties.",
+            "answer": f"I apologize, but I'm currently unable to process your question. Please ensure Ollama is running and the '{self.model_name}' model is installed. Run: ollama pull {self.model_name}",
             "confidence": 0.0,
             "refusal_reason": "All providers unavailable"
         }

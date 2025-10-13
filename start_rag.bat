@@ -28,6 +28,33 @@ if %errorlevel% neq 0 (
 
 echo Ollama is running!
 
+REM Check if qwen3:4b model is available
+echo Checking for qwen3:4b model...
+curl -s http://localhost:11434/api/tags | findstr "qwen3" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo WARNING: qwen3:4b model not found!
+    echo Please run: ollama pull qwen3:4b
+    echo.
+    echo Do you want to download it now? (y/n)
+    set /p choice=
+    if /i "%choice%"=="y" (
+        echo Downloading qwen3:4b model...
+        ollama pull qwen3:4b
+        if %errorlevel% neq 0 (
+            echo ERROR: Failed to download qwen3:4b model
+            pause
+            exit /b 1
+        )
+        echo Model downloaded successfully!
+    ) else (
+        echo Please download the model manually and restart the service
+        pause
+        exit /b 1
+    )
+)
+
+echo qwen3:4b model is available!
+
 REM Start the RAG service
 echo Starting RAG service...
 echo.

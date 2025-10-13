@@ -49,7 +49,13 @@ async def lifespan(app: FastAPI):
     vector_store = VectorStore()
     
     # Initialize Ollama LLM service with Qwen3 4B
-    llm_service = LLMService(model_name="qwen3:4b", ollama_url="http://localhost:11434")
+    try:
+        llm_service = LLMService(model_name="qwen3:4b", ollama_url="http://localhost:11434")
+    except Exception as e:
+        logger.error(f"Failed to initialize LLM service: {e}")
+        logger.error("Please ensure Ollama is running and qwen3:4b model is installed.")
+        logger.error("Run: ollama pull qwen3:4b")
+        raise HTTPException(status_code=500, detail=f"LLM service initialization failed: {str(e)}")
     
     # Initialize dependent services
     indexer_service = IndexerService(vector_store=vector_store)
