@@ -16,16 +16,20 @@ from src.indexer import IndexerService
 from src.qa_service import QAService
 from src.vector_store import VectorStore
 from src.llm_service import LLMService
-from src.metrics import metrics_collector
 from src.models import CrawlRequest, CrawlResponse, IndexRequest, IndexResponse, AskRequest, AskResponse
+from src.config import get_config
+
+# Get configuration
+config = get_config()
 
 # Configure logging
+log_config = config.get_logging_config()
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=getattr(logging, log_config.get('level', 'INFO').upper()),
+    format=log_config.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
     handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('rag_service.log')
+        logging.StreamHandler() if log_config.get('console', True) else logging.NullHandler(),
+        logging.FileHandler(log_config.get('file', 'data/rag_service.log'))
     ]
 )
 logger = logging.getLogger(__name__)
@@ -44,22 +48,35 @@ async def lifespan(app: FastAPI):
     
     logger.info("Initializing RAG services...")
     
+    # Get configuration sections
+    data_config = config.get_data_config()
+    llm_config = config.get_llm_config()
+    qa_config = config.get_qa_config()
+    
     # Initialize core services
     crawler_service = CrawlerService()
-    vector_store = VectorStore()
+    vector_store = VectorStore(index_path=data_config.get('vector_index_path', 'data/vector_index'))
     
-    # Initialize Ollama LLM service with Qwen3 4B
+    # Initialize Ollama LLM service
     try:
-        llm_service = LLMService(model_name="qwen3:4b", ollama_url="http://localhost:11434")
+        llm_service = LLMService(
+            model_name=llm_config.get('model_name', 'qwen3:4b'),
+            ollama_url=llm_config.get('ollama_url', 'http://localhost:11434')
+        )
     except Exception as e:
+        model_name = llm_config.get('model_name', 'qwen3:4b')
         logger.error(f"Failed to initialize LLM service: {e}")
-        logger.error("Please ensure Ollama is running and qwen3:4b model is installed.")
-        logger.error("Run: ollama pull qwen3:4b")
+        logger.error(f"Please ensure Ollama is running and {model_name} model is installed.")
+        logger.error(f"Run: ollama pull {model_name}")
         raise HTTPException(status_code=500, detail=f"LLM service initialization failed: {str(e)}")
     
     # Initialize dependent services
     indexer_service = IndexerService(vector_store=vector_store)
-    qa_service = QAService(vector_store, llm_service)
+    qa_service = QAService(
+        vector_store, 
+        llm_service, 
+        min_relevance_threshold=qa_config.get('default_min_relevance', 0.5)
+    )
     
     # Try to load existing vector index
     if vector_store.load_index():
@@ -72,20 +89,24 @@ async def lifespan(app: FastAPI):
     
     logger.info("Shutting down RAG services...")
 
+# Get app and CORS configuration
+app_config = config.get_app_config()
+cors_config = config.get_cors_config()
+
 app = FastAPI(
-    title="RAG Service",
-    description="A modular Retrieval-Augmented Generation service",
-    version="1.0.0",
+    title=app_config.get('title', 'RAG Service'),
+    description=app_config.get('description', 'A modular Retrieval-Augmented Generation service'),
+    version=app_config.get('version', '1.0.0'),
     lifespan=lifespan
 )
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=cors_config.get('allow_origins', ["*"]),
+    allow_credentials=cors_config.get('allow_credentials', True),
+    allow_methods=cors_config.get('allow_methods', ["*"]),
+    allow_headers=cors_config.get('allow_headers', ["*"]),
 )
 
 @app.get("/")
@@ -93,10 +114,6 @@ async def root():
     """Health check endpoint"""
     return {"message": "RAG Service is running", "status": "healthy"}
 
-@app.get("/metrics")
-async def get_metrics():
-    """Get service metrics and performance statistics"""
-    return metrics_collector.get_all_metrics()
 
 @app.get("/health")
 async def health_check():
@@ -176,13 +193,23 @@ async def index_content(request: IndexRequest):
 async def ask_question(request: AskRequest):
     """Ask a question and get an answer with sources"""
     try:
-        logger.info(f"Processing question: {request.question[:100]}...")
-        result = await qa_service.ask_question(
-            question=request.question,
-            top_k=request.top_k
-        )
-        logger.info(f"Question answered in {result['timings']['total_ms']}ms")
-        return AskResponse(**result)
+        logger.info(f"Processing question: {request.question[:100]}... (min_relevance: {request.min_relevance})")
+        
+        # Update QAService threshold for this request
+        original_threshold = qa_service.min_relevance_threshold
+        qa_service.min_relevance_threshold = request.min_relevance
+        
+        try:
+            result = await qa_service.ask_question(
+                question=request.question,
+                top_k=request.top_k
+            )
+            logger.info(f"Question answered in {result['timings']['total_ms']}ms")
+            return AskResponse(**result)
+        finally:
+            # Restore original threshold
+            qa_service.min_relevance_threshold = original_threshold
+            
     except Exception as e:
         logger.error(f"Question answering failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -190,8 +217,8 @@ async def ask_question(request: AskRequest):
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
+        host=app_config.get('host', '0.0.0.0'),
+        port=app_config.get('port', 8000),
+        reload=app_config.get('debug', False),
+        log_level=log_config.get('level', 'info').lower()
     )

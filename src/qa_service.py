@@ -14,9 +14,11 @@ logger = logging.getLogger(__name__)
 class QAService:
     """Service for question answering with retrieval and generation"""
     
-    def __init__(self, vector_store: VectorStore = None, llm_service: LLMService = None):
+    def __init__(self, vector_store: VectorStore = None, llm_service: LLMService = None, 
+                 min_relevance_threshold: float = 0.5):
         self.vector_store = vector_store or VectorStore()
         self.llm_service = llm_service or LLMService()
+        self.min_relevance_threshold = min_relevance_threshold
         
     async def ask_question(self, question: str, top_k: int = 5) -> Dict[str, Any]:
         """Answer a question using retrieval and generation"""
@@ -29,6 +31,16 @@ class QAService:
             retrieval_start = time.time()
             search_results = await self._retrieve_relevant_chunks(question, top_k)
             retrieval_time = (time.time() - retrieval_start) * 1000  # Convert to ms
+            
+            # Check if we have any relevant sources above threshold
+            if not search_results or len(search_results) == 0:
+                total_time = (time.time() - start_time) * 1000
+                return {
+                    "answer": "I don't have any relevant information in my knowledge base to answer this question.",
+                    "sources": [],
+                    "timings": Timings(retrieval_ms=retrieval_time, generation_ms=0, total_ms=total_time).dict(),
+                    "confidence": 0.0
+                }
             
             # Step 2: Generate answer
             generation_start = time.time()
@@ -84,12 +96,15 @@ class QAService:
             # Search for similar chunks
             search_results = self.vector_store.search(query_embedding, top_k)
             
-            # Optionally merge consecutive chunks for better context
-            if len(search_results) > 1:
-                search_results = self.vector_store.merge_consecutive_chunks(search_results)
+            # Filter results by relevance threshold
+            relevant_results = [result for result in search_results if result.score >= self.min_relevance_threshold]
             
-            logger.info(f"Retrieved {len(search_results)} relevant chunks")
-            return search_results
+            # Optionally merge consecutive chunks for better context
+            if len(relevant_results) > 1:
+                relevant_results = self.vector_store.merge_consecutive_chunks(relevant_results)
+            
+            logger.info(f"Retrieved {len(search_results)} chunks, {len(relevant_results)} above threshold {self.min_relevance_threshold}")
+            return relevant_results
             
         except Exception as e:
             logger.error(f"Retrieval failed: {e}")
@@ -100,17 +115,19 @@ class QAService:
         sources = []
         
         for result in search_results:
-            # Create snippet (first 200 characters of the text)
-            snippet = result.text[:200]
-            if len(result.text) > 200:
-                snippet += "..."
-            
-            source = Source(
-                url=result.url,
-                snippet=snippet,
-                relevance_score=result.score
-            )
-            sources.append(source)
+            # Only include sources above relevance threshold (double-check)
+            if result.score >= self.min_relevance_threshold:
+                # Create snippet (first 200 characters of the text)
+                snippet = result.text[:200]
+                if len(result.text) > 200:
+                    snippet += "..."
+                
+                source = Source(
+                    url=result.url,
+                    snippet=snippet,
+                    relevance_score=result.score
+                )
+                sources.append(source)
         
         return sources
     

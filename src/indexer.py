@@ -22,12 +22,17 @@ class IndexerService:
         self._crawled_pages = []
         
     async def index_content(self, chunk_size: int = 500, chunk_overlap: int = 50, 
-                           embedding_model: str = None) -> Dict[str, Any]:
+                           embedding_model: str = None, clear_existing: bool = False) -> Dict[str, Any]:
         """Index crawled content into vector store"""
         start_time = time.time()
         errors = []
         
         try:
+            # Clear existing index if requested
+            if clear_existing:
+                logger.info("Clearing existing vector index...")
+                self.vector_store.clear_and_rebuild()
+            
             # Update embedding model if specified
             if embedding_model and embedding_model != self.embedding_model:
                 self.chunker = ChunkerService(embedding_model)

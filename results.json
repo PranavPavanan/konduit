@@ -1,0 +1,198 @@
+{
+  "metadata": {
+    "timestamp": "2025-10-14T23:39:45.550594",
+    "total_queries": 5,
+    "total_runs": 3,
+    "total_tests": 15,
+    "rag_service_url": "http://localhost:8000"
+  },
+  "performance": {
+    "latency_ms": {
+      "p50": 24254.13,
+      "p90": 27150.74,
+      "average": 25228.95,
+      "min": 18916.85,
+      "max": 45411.74
+    },
+    "retrieval_time_ms": {
+      "average": 8189.78
+    },
+    "generation_time_ms": {
+      "average": 17032.8
+    }
+  },
+  "quality_metrics": {
+    "success_rate": 0.933,
+    "precision": 0.933,
+    "recall": 1.0,
+    "f1_score": 0.962,
+    "confidence": 0.572
+  },
+  "detailed_results": [
+    {
+      "question": "What is Python?",
+      "answer": "Based on the provided context, Python is:\n\nA programming language that allows you to split your program into reusable modules, comes with a large collection of standard modules (for file I/O, system c...",
+      "sources_count": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.704,
+      "total_time_ms": 45411.74,
+      "success": true
+    },
+    {
+      "question": "How do I create a virtual environment in Python?",
+      "answer": "Based on the provided context, here's how to create a virtual environment in Python:\n\nTo create a virtual environment in Python, you need to use the `venv` module. The process involves:\n\n1. Decide upo...",
+      "sources_count": 2,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1_score": 0.857,
+      "confidence": 0.569,
+      "total_time_ms": 23579.52,
+      "success": true
+    },
+    {
+      "question": "What are Python decorators?",
+      "answer": "Based on the provided context, particularly from Source 2 (the Python glossary), I can answer what Python decorators are.\n\nPython decorators are functions that return another function, usually applied...",
+      "sources_count": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.572,
+      "total_time_ms": 21396.55,
+      "success": true
+    },
+    {
+      "question": "How to handle exceptions in Python?",
+      "answer": "Based on the provided context from Python's documentation, I can answer how to handle exceptions in Python.\n\nIn Python, exceptions are handled using try/except statements with the following key featur...",
+      "sources_count": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.597,
+      "total_time_ms": 25725.19,
+      "success": true
+    },
+    {
+      "question": "What is the difference between list and tuple in Python?",
+      "answer": "Based on the provided context, here's the difference between list and tuple in Python:\n\n1. **Mutability**: Tuples are immutable (cannot be changed after creation), while lists are mutable (can be modi...",
+      "sources_count": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.629,
+      "total_time_ms": 23699.01,
+      "success": true
+    },
+    {
+      "question": "What is Python?",
+      "answer": "Based on the provided context, I can answer that:\n\nPython is an interpreted programming language with high-level data structures and elegant syntax. It's designed for rapid application development and...",
+      "sources_count": 3,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1_score": 0.857,
+      "confidence": 0.704,
+      "total_time_ms": 23171.93,
+      "success": true
+    },
+    {
+      "question": "How do I create a virtual environment in Python?",
+      "answer": "Based on the provided context, here's how to create a virtual environment in Python:\n\nTo create a virtual environment in Python, you can use the `venv` module. The process is as follows:\n\n1. Decide up...",
+      "sources_count": 2,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1_score": 0.857,
+      "confidence": 0.569,
+      "total_time_ms": 18916.85,
+      "success": true
+    },
+    {
+      "question": "What are Python decorators?",
+      "answer": "Based on the provided context, Python decorators are defined as:\n\n\"decoratorA function returning another function, usually applied as a function transformation using the @wrapper syntax. Common exampl...",
+      "sources_count": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.572,
+      "total_time_ms": 19152.65,
+      "success": true
+    },
+    {
+      "question": "How to handle exceptions in Python?",
+      "answer": "Based on the provided context from Python's documentation, here's how to handle exceptions in Python:\n\nTo handle exceptions in Python, you use the `try` and `except` statement structure. Here are the ...",
+      "sources_count": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.597,
+      "total_time_ms": 26522.45,
+      "success": true
+    },
+    {
+      "question": "What is the difference between list and tuple in Python?",
+      "answer": "Based on the provided context, I can answer this question.\n\nThe difference between list and tuple in Python is that:\n\n1. Mutability: Tuples are immutable (cannot be changed after creation), while list...",
+      "sources_count": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.0,
+      "total_time_ms": 25997.54,
+      "success": false
+    },
+    {
+      "question": "What is Python?",
+      "answer": "Based on the provided context, I can answer what Python is:\n\nPython is an interpreted programming language that allows you to split your program into reusable modules with a large collection of standa...",
+      "sources_count": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.704,
+      "total_time_ms": 27150.74,
+      "success": true
+    },
+    {
+      "question": "How do I create a virtual environment in Python?",
+      "answer": "Based on the provided context, I can answer how to create a virtual environment in Python.\n\nTo create a virtual environment in Python, you use the `python -m venv` command followed by the directory na...",
+      "sources_count": 2,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1_score": 0.857,
+      "confidence": 0.569,
+      "total_time_ms": 20675.31,
+      "success": true
+    },
+    {
+      "question": "What are Python decorators?",
+      "answer": "Based on the provided context, I can answer this question.\n\nAccording to Source 2 (from the Python glossary), Python decorators are defined as: \"A function returning another function, usually applied ...",
+      "sources_count": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.572,
+      "total_time_ms": 24254.13,
+      "success": true
+    },
+    {
+      "question": "How to handle exceptions in Python?",
+      "answer": "Based on the provided context from the Python tutorial (https://docs.python.org/3/tutorial/errors.html), here's how to handle exceptions in Python:\n\nTo handle exceptions in Python, you use the `try` s...",
+      "sources_count": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.597,
+      "total_time_ms": 25944.92,
+      "success": true
+    },
+    {
+      "question": "What is the difference between list and tuple in Python?",
+      "answer": "Based on the provided context, I can answer this question.\n\nThe main differences between lists and tuples in Python are:\n\n1. **Mutability**: Tuples are immutable (cannot be changed after creation), wh...",
+      "sources_count": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confidence": 0.629,
+      "total_time_ms": 26835.74,
+      "success": true
+    }
+  ]
+}

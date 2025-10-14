@@ -1,0 +1,72 @@
+[
+  {
+    "question": "What is Python programming language?",
+    "expected_answer_keywords": ["programming", "language", "interpreted", "readable", "high-level"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "easy"
+  },
+  {
+    "question": "How do I install Python packages using pip?",
+    "expected_answer_keywords": ["pip", "install", "package", "command", "terminal"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "easy"
+  },
+  {
+    "question": "What are Python decorators and how do they work?",
+    "expected_answer_keywords": ["decorator", "function", "wrapper", "@", "syntax"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "hard"
+  },
+  {
+    "question": "How to handle file I/O operations in Python?",
+    "expected_answer_keywords": ["file", "open", "read", "write", "close", "with"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is the difference between list and tuple in Python?",
+    "expected_answer_keywords": ["list", "tuple", "mutable", "immutable", "brackets", "parentheses"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How to create and use classes in Python?",
+    "expected_answer_keywords": ["class", "object", "method", "attribute", "self", "init"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What are Python generators and yield keyword?",
+    "expected_answer_keywords": ["generator", "yield", "iterator", "memory", "lazy"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "hard"
+  },
+  {
+    "question": "How to handle exceptions and errors in Python?",
+    "expected_answer_keywords": ["try", "except", "exception", "error", "finally", "raise"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "medium"
+  },
+  {
+    "question": "What is virtual environment in Python and how to use it?",
+    "expected_answer_keywords": ["virtual", "environment", "venv", "isolate", "dependencies"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "medium"
+  },
+  {
+    "question": "How to work with regular expressions in Python?",
+    "expected_answer_keywords": ["regex", "regular", "expression", "re", "pattern", "match"],
+    "expected_sources": ["docs.python.org"],
+    "category": "programming",
+    "difficulty": "hard"
+  }
+]

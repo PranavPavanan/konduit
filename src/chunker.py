@@ -9,6 +9,7 @@ from dataclasses import dataclass
 import nltk
 from sentence_transformers import SentenceTransformer
 import numpy as np
+from .config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,12 @@ class TextChunk:
 class ChunkerService:
     """Service for semantic chunking of text content"""
     
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
-        self.model_name = model_name
+    def __init__(self, model_name: str = None):
+        # Get configuration
+        config = get_config()
+        embeddings_config = config.get_embeddings_config()
+        
+        self.model_name = model_name or embeddings_config.get('model_name', 'all-MiniLM-L6-v2')
         self.model = None
         self._download_nltk_data()
     
@@ -65,9 +70,18 @@ class ChunkerService:
             sentences = re.split(r'[.!?]+', text)
             return [s.strip() for s in sentences if s.strip()]
     
-    def _create_chunks(self, text: str, url: str, chunk_size: int = 500, 
-                      chunk_overlap: int = 50) -> List[TextChunk]:
+    def _create_chunks(self, text: str, url: str, chunk_size: int = None, 
+                      chunk_overlap: int = None) -> List[TextChunk]:
         """Create overlapping text chunks"""
+        # Get configuration for default values
+        config = get_config()
+        chunking_config = config.get_chunking_config()
+        
+        if chunk_size is None:
+            chunk_size = chunking_config.get('default_chunk_size', 500)
+        if chunk_overlap is None:
+            chunk_overlap = chunking_config.get('default_chunk_overlap', 50)
+        
         sentences = self._split_into_sentences(text)
         
         if not sentences:
@@ -143,8 +157,8 @@ class ChunkerService:
         
         return overlap_sentences
     
-    def chunk_pages(self, pages: List[Dict[str, Any]], chunk_size: int = 500, 
-                   chunk_overlap: int = 50) -> List[TextChunk]:
+    def chunk_pages(self, pages: List[Dict[str, Any]], chunk_size: int = None,
+                   chunk_overlap: int = None) -> List[TextChunk]:
         """Chunk multiple pages into text chunks"""
         all_chunks = []
         

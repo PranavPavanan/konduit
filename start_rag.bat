@@ -9,6 +9,14 @@ REM Activate virtual environment
 echo Activating virtual environment...
 call .venv\Scripts\activate.bat
 
+REM Check if Ollama is already running
+echo Checking if Ollama is already running...
+powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:11434/api/tags' -TimeoutSec 5 -UseBasicParsing | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
+if %errorlevel% equ 0 (
+    echo Ollama is already running on port 11434!
+    goto :ollama_ready
+)
+
 REM Start Ollama in background
 echo Starting Ollama...
 start "Ollama" /min ollama serve
@@ -17,20 +25,22 @@ REM Wait for Ollama to start
 echo Waiting for Ollama to start...
 timeout /t 5 /nobreak >nul
 
-REM Check if Ollama is running
+REM Check if Ollama started successfully
 echo Checking Ollama status...
-curl -s http://localhost:11434/api/tags >nul 2>&1
+powershell -Command "try { Invoke-WebRequest -Uri 'http://localhost:11434/api/tags' -TimeoutSec 5 -UseBasicParsing | Out-Null; exit 0 } catch { exit 1 }" >nul 2>&1
 if %errorlevel% neq 0 (
     echo ERROR: Ollama failed to start
     pause
     exit /b 1
 )
 
-echo Ollama is running!
+echo Ollama started successfully!
+
+:ollama_ready
 
 REM Check if qwen3:4b model is available
 echo Checking for qwen3:4b model...
-curl -s http://localhost:11434/api/tags | findstr "qwen3" >nul 2>&1
+powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:11434/api/tags' -TimeoutSec 5 -UseBasicParsing; if ($response.Content -match 'qwen3') { exit 0 } else { exit 1 } } catch { exit 1 }" >nul 2>&1
 if %errorlevel% neq 0 (
     echo WARNING: qwen3:4b model not found!
     echo Please run: ollama pull qwen3:4b
